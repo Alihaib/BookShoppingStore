@@ -1,0 +1,182 @@
+﻿@model ShoppingCart
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    ViewData["Title"] = "GetUserCart";
+    var antiforgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
+}
+
+<div style="width:90%;margin:auto" class="mt-4">
+    @if (Model != null && Model.CartDetails != null && Model.CartDetails.Count > 0)
+    {
+        <h2 class="mb-4 text-center">
+            <i class="bi bi-cart-check-fill text-primary"></i> My Cart
+        </h2>
+
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th><i class="bi bi-book-fill"></i> Book</th>
+                    <th><i class="bi bi-image-fill"></i> Image</th>
+                    <th><i class="bi bi-tags-fill"></i> Genre</th>
+                    <th><i class="bi bi-currency-dollar"></i> Unit Price</th>
+                    <th><i class="bi bi-calculator-fill"></i> Total Price</th>
+                    <th><i class="bi bi-trash3-fill"></i> Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.CartDetails)
+                {
+                    <tr>
+                        <td class="fw-bold">@item.Book.BookName</td>
+                        <td>
+                            @if (string.IsNullOrEmpty(item.Book.Imaget))
+                            {
+                                <img src="/images/NoImage.png" class="img-fluid rounded shadow" style="width:80px;height:100px;" alt="No Image" />
+                            }
+                            else
+                            {
+                                <img src="/imaget/@item.Book.Imaget" class="img-fluid rounded shadow" style="width:80px;height:100px;" alt="@item.Book.BookName" />
+                            }
+                        </td>
+                        <td>@item.Book.Genre.GenreName</td>
+                        <td>
+                            @if (item.Book.DiscountEndDate.HasValue && item.Book.DiscountEndDate.Value > DateTime.Now)
+                            {
+                                <div>
+                                    <span class="text-muted text-decoration-line-through d-block">
+                                        Original: @item.Book.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))
+                                    </span>
+                                    <span class="text-success fw-bold">
+                                        Discounted: $@item.Book.DiscountPrice
+                                    </span>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-primary fw-bold">
+                                    Price: @item.Book.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))
+                                </span>
+                            }
+                        </td>
+                        <td class="fw-bold text-secondary">
+                            $@(item.Book.DiscountEndDate.HasValue && item.Book.DiscountEndDate.Value > DateTime.Now
+                               ? item.Book.DiscountPrice * item.Quantity
+                               : item.Book.Price * item.Quantity)
+                        </td>
+                        <td>
+                            <form asp-action="RemoveItem" method="post" style="display:inline;">
+                                <input type="hidden" name="bookId" value="@item.Book.Id" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash3"></i> Remove
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-end my-3">
+            <h4>
+                Total:
+                <span class="text-success fw-bold">
+                    $@(Model.CartDetails.Sum(item =>
+                       item.Book.DiscountEndDate.HasValue && item.Book.DiscountEndDate.Value > DateTime.Now
+                       ? item.Book.DiscountPrice * item.Quantity
+                       : item.Book.Price * item.Quantity
+                       ))
+                </span>
+            </h4>
+        </div>
+
+        <div class="text-end">
+            <button type="button" class="btn btn-primary btn-lg" onclick="checkout()">
+                <i class="bi bi-paypal"></i> Checkout with PayPal
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="text-center">
+            <h4><i class="bi bi-cart-x-fill text-danger"></i> Your Cart is Empty</h4>
+        </div>
+    }
+</div>
+
+
+@section Scripts {
+    <script>
+        async function checkout() {
+            console.log("Checkout button clicked");
+
+            const bookIds = @Html.Raw(Json.Serialize(Model.CartDetails.Select(cd => cd.Book.Id).ToList()));
+            const token = '@antiforgeryToken';
+            let paypalUrl = null;
+
+            // Loop through each bookId and make the API call to initiate the purchase
+            for (const bookId of bookIds) {
+                try {
+                    console.log(`Initiating purchase for bookId: ${bookId}`);
+                    const response = await fetch('/Library/BuyBook', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({ BookId: bookId })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.paypalUrl) {
+                            paypalUrl = result.paypalUrl;
+                            console.log(`Received PayPal URL: ${paypalUrl}`);
+                        } else {
+                            alert('Error: ' + result.message);
+                        }
+                    } else {
+                        alert('Error: ' + response.statusText);
+                    }
+                } catch (error) {
+                    console.error("Error buying book:", error);
+                    alert('An error occurred while processing your request.');
+                }
+            }
+
+            // Redirect to PayPal if a valid URL was received
+            if (paypalUrl) {
+                window.location.href = paypalUrl;
+
+                // Wait for a short delay to ensure the redirection to PayPal occurs
+                setTimeout(async () => {
+                    try {
+                        // After payment, clean the cart by iterating through all books
+                        for (const bookId of bookIds) {
+                            const removeResponse = await fetch('/Library/RemoveFromCart', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'RequestVerificationToken': token
+                                },
+                                body: JSON.stringify({ BookId: bookId })
+                            });
+
+                            if (!removeResponse.ok) {
+                                console.warn(`Failed to remove book with ID ${bookId} from cart.`);
+                            }
+                        }
+
+                        // Notify the user and reload the page
+                        alert('Payment successful! Your cart has been cleared.');
+                        window.location.reload();
+                    } catch (error) {
+                        console.error("Error clearing cart:", error);
+                        alert('An error occurred while clearing your cart.');
+                    }
+                }, 2000); // Adjust the delay if necessary
+            } else {
+                alert("No PayPal URL received.");
+            }
+        }
+    </script>
+}

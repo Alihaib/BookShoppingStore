@@ -1,0 +1,91 @@
+﻿@model IEnumerable<BookShopping1.Models.PaymentInfo>
+@{
+    ViewData["Title"] = "Payments";
+    Layout = "_AdminLayout";
+}
+
+<div class="container my-5">
+    <h2>Payments</h2>
+
+    <!-- Button to show user selection dropdown -->
+    <button id="showUsersButton" class="btn btn-primary mb-3" onclick="toggleUserSelection()">Select User to Send Notification</button>
+
+    <!-- User selection dropdown (hidden initially) -->
+    <div id="userSelectionDiv" style="display: none;">
+        @if (ViewBag.Users != null)
+        {
+            <form asp-action="SendNotification" method="post">
+                <!-- User Dropdown -->
+                <div class="mb-3">
+                    <label for="UserId" class="form-label">Select User</label>
+                    <select name="UserId" class="form-select">
+                        <option value="">Select User</option>
+                        @foreach (var user in ViewBag.Users as SelectList)
+                        {
+                            <option value="@user.Value">@user.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Message Textarea -->
+                <div class="mb-3">
+                    <textarea name="Message" class="form-control" rows="2" placeholder="Write your notification here..."></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary btn-sm mt-2">Send Notification</button>
+            </form>
+        }
+        else
+        {
+            <p>No users available to send notifications to.</p>
+        }
+    </div>
+
+    <!-- Payment Table -->
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Book ID</th>
+                <th>Amount</th>
+                <th>Payment Date</th>
+                <th>Is Borrow</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payment in Model)
+            {
+                <tr>
+                    <td>@payment.UserId</td>
+                    <td>@payment.BookId</td>
+                    <td>@payment.Amount</td>
+                    <td>@payment.PaymentDate</td>
+                    <td>@payment.IsBorrow</td>
+                    <td>
+                        <!-- Admin can see this button to trigger dropdown -->
+                        <button class="btn btn-info btn-sm" onclick="toggleUserSelection()">Send Notification</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- JavaScript to toggle the dropdown visibility -->
+<script>
+    function toggleUserSelection() {
+        var userSelectionDiv = document.getElementById('userSelectionDiv');
+        var showUsersButton = document.getElementById('showUsersButton');
+
+        // Toggle the visibility of the dropdown
+        if (userSelectionDiv.style.display === "none" || userSelectionDiv.style.display === "") {
+            userSelectionDiv.style.display = "block";
+            showUsersButton.innerText = "Hide User Selection"; // Change button text
+        } else {
+            userSelectionDiv.style.display = "none";
+            showUsersButton.innerText = "Select User to Send Notification"; // Reset button text
+        }
+    }
+</script>

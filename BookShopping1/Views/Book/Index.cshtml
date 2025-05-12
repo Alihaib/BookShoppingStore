@@ -1,0 +1,88 @@
+﻿@model IEnumerable<Book>
+@{
+    Layout = "_AdminLayout";
+}
+
+<h2>Books</h2>
+
+<a asp-action="AddBook" asp-controller="Book" class="btn btn-primary mb-3">Add More</a>
+
+@if (Model?.Any() == true)
+{
+    <div class="table-responsive">
+        <table class="table table-striped my-2">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Book</th>
+                    <th>Author</th>
+                    <th>Publisher</th>
+                    <th>Genre</th>
+                    <th>Price</th>
+                    <th>Borrow Price</th>
+                    <th>Description</th>
+                    <th>Year</th>
+                    <th>Age Limit</th>
+                    <th>On Sale</th>
+                  
+                    <th>Discount End Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var book in Model)
+                {
+                    <tr>
+                        <td>
+                            @if (string.IsNullOrWhiteSpace(book.Imaget))
+                            {
+                                <img src="/Images/NoImage.png" style="width:80px;height:100px" alt="No book image" />
+                            }
+                            else
+                            {
+                                <img src="/imaget/@book.Imaget" style="width:80px;height:100px" alt="book image" />
+                            }
+                        </td>
+                        <td>@book.BookName</td>
+                        <td>@book.AuthorName</td>
+                        <td>@book.Publisher</td>
+                        <td>@book.Genre?.GenreName</td>
+                        <td>
+                            @if (book.DiscountEndDate.HasValue && book.DiscountEndDate.Value > DateTime.Now)
+                            {
+                                <span style="text-decoration: line-through;">@book.Price$</span>
+                                <span>$@(book.DiscountPrice)</span>
+                            }
+                            else
+                            {
+                                @book.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))
+                            }
+                        </td>
+                        <td>@book.BorrowPrice.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</td>
+                        <td>@book.Description</td>
+                        <td>@book.YearOfPublishing</td>
+                        <td>@book.AgeLimit</td>
+                        <td>@book.IsOnSale</td>
+                
+                        <td>@book.DiscountEndDate?.ToString("d")</td>
+                        <td>
+                            <!-- Edit button -->
+                            <a asp-action="UpdateBook" asp-controller="Book" asp-route-id="@book.Id" class="btn btn-success" title="Edit">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            <!-- Delete button -->
+                            <a asp-action="DeleteBook" asp-controller="Book" asp-route-id="@book.Id" class="btn btn-danger"
+                               onclick="return confirm('Are you sure you want to delete this book?')" title="Delete">
+                                <i class="bi bi-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <h3>No records found</h3>
+}

@@ -1,0 +1,160 @@
+﻿@model BookShopping1.Models.FeedBack
+
+@{
+    ViewData["Title"] = "Rate the Book:";
+}
+
+<h1><b>@ViewData["Title"]</b></h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Feedback Form on the Left -->
+        <div class="col-md-6">
+            <h3>Submit Your Feedback:</h3>
+            <form asp-action="SubmitFeedback" method="post">
+                <input type="hidden" asp-for="BookId" value="@ViewBag.BookId" />
+
+                <!-- Star Rating Input -->
+                <div class="form-group">
+                    <label asp-for="Rating" class="control-label">Rating (1-5):</label>
+                    <div class="rating">
+                        <i class="fa fa-star" data-value="1"></i>
+                        <i class="fa fa-star" data-value="2"></i>
+                        <i class="fa fa-star" data-value="3"></i>
+                        <i class="fa fa-star" data-value="4"></i>
+                        <i class="fa fa-star" data-value="5"></i>
+                    </div>
+                    <input type="hidden" asp-for="Rating" id="ratingValue" required />
+                    <span asp-validation-for="Rating" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Comment" class="control-label">Your Comment:</label>
+                    <textarea asp-for="Comment" class="form-control" rows="4" required></textarea>
+                    <span asp-validation-for="Comment" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </div>
+            </form>
+            <div class="mt-3">
+                <a href="@Url.Action("Details", "Home", new { id = ViewBag.BookId })" class="btn btn-secondary">Back to Book Details</a>
+            </div>
+        </div>
+
+        <!-- Feedback List on the Right -->
+        <div class="col-md-6">
+            <h3>Existing Feedbacks:</h3>
+            @if (ViewBag.Feedbacks != null && ViewBag.Feedbacks.Count > 0)
+            {
+                <ul class="list-group">
+                    @foreach (var feedback in ViewBag.Feedbacks)
+                    {
+                        <li class="list-group-item">
+                            <strong>@feedback.UserName</strong> <span class="text-muted">(Rating: @feedback.Rating)</span>
+                            <p>@feedback.Comment</p>
+                            <small class="text-muted">Submitted on @feedback.Date.ToString("MM/dd/yyyy")</small>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">No feedbacks yet for this book.</p>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Include Font Awesome for star icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+
+<!-- Styling -->
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .list-group-item {
+        margin-bottom: 10px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 15px;
+    }
+
+    h3 {
+        margin-bottom: 20px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    /* Star Rating Styling */
+    .rating {
+        display: flex;
+        gap: 5px;
+        font-size: 1.5rem;
+    }
+
+        .rating i {
+            cursor: pointer;
+            color: #ccc; /* Grey by default */
+        }
+
+            .rating i.selected,
+            .rating i:hover {
+                color: #ffbc00; /* Gold on hover or selected */
+            }
+
+            .rating i.active {
+                color: #ffbc00; /* Gold color when selected */
+            }
+
+            /* Style for inactive stars */
+            .rating i:not(.active):hover {
+                color: #ffbc00;
+            }
+</style>
+
+<!-- Script to handle the star rating logic -->
+<script>
+    // Get all star icons
+    const stars = document.querySelectorAll('.rating i');
+    const ratingInput = document.getElementById('ratingValue');
+
+    stars.forEach(star => {
+        star.addEventListener('click', function () {
+            const rating = this.getAttribute('data-value');
+            ratingInput.value = rating;
+
+            // Remove active class from all stars
+            stars.forEach(star => star.classList.remove('active'));
+
+            // Add active class to the clicked star and all previous stars
+            for (let i = 0; i < rating; i++) {
+                stars[i].classList.add('active');
+            }
+        });
+
+        star.addEventListener('mouseover', function () {
+            // Highlight stars on hover
+            const rating = this.getAttribute('data-value');
+            for (let i = 0; i < rating; i++) {
+                stars[i].classList.add('selected');
+            }
+        });
+
+        star.addEventListener('mouseout', function () {
+            // Remove hover highlight
+            stars.forEach(star => star.classList.remove('selected'));
+        });
+    });
+</script>

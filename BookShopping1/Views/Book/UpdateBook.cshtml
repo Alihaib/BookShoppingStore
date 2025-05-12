@@ -1,0 +1,139 @@
+﻿@model BookDTO
+@{
+    Layout = "_AdminLayout";
+}
+
+<div style="width:50%">
+    <h2>Update Book</h2>
+    <a asp-action="Index" asp-controller="Book" class="btn btn-primary">Back</a>
+
+    <form asp-action="UpdateBook" enctype="multipart/form-data">
+        <!-- Hidden fields to carry Id and Imaget -->
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Imaget" />
+
+        <!-- Book Name Input -->
+        <div class="my-2">
+            <label for="BookName">Book*</label>
+            <input type="text" class="form-control" asp-for="BookName" id="BookName" required />
+            <span asp-validation-for="BookName" class="text-danger"></span>
+        </div>
+
+        <!-- Author Name Input -->
+        <div class="my-2">
+            <label for="AuthorName">Author*</label>
+            <input type="text" class="form-control" asp-for="AuthorName" id="AuthorName" required />
+            <span asp-validation-for="AuthorName" class="text-danger"></span>
+        </div>
+
+        <!-- Publisher Input -->
+        <div class="my-2">
+            <label for="Publisher">Publisher*</label>
+            <input type="text" class="form-control" asp-for="Publisher" id="Publisher" required />
+            <span asp-validation-for="Publisher" class="text-danger"></span>
+        </div>
+
+        <!-- Genre Dropdown -->
+        <div class="my-2">
+            <label for="GenreId">Genre*</label>
+            <select class="form-control" asp-for="GenreId" asp-items="Model.GenreList" required>
+                <option value="">Select Genre</option>
+            </select>
+            <span asp-validation-for="GenreId" class="text-danger"></span>
+        </div>
+
+        <!-- Price Input -->
+        <div class="my-2">
+            <label for="Price">Price*</label>
+            <input type="number" class="form-control" asp-for="Price" id="Price" required />
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <!-- Borrow Price Input -->
+        <div class="my-2">
+            <label for="BorrowPrice">Borrow Price*</label>
+            <input type="number" class="form-control" asp-for="BorrowPrice" id="BorrowPrice" required />
+            <span asp-validation-for="BorrowPrice" class="text-danger"></span>
+        </div>
+
+        <!-- Year of Publishing Input -->
+        <div class="my-2">
+            <label for="YearOfPublishing">Year of Publishing*</label>
+            <input type="number" class="form-control" asp-for="YearOfPublishing" id="YearOfPublishing" required />
+            <span asp-validation-for="YearOfPublishing" class="text-danger"></span>
+        </div>
+
+        <!-- Age Limit Input -->
+        <div class="my-2">
+            <label for="AgeLimit">Age Limit*</label>
+            <input type="number" class="form-control" asp-for="AgeLimit" id="AgeLimit" required />
+            <span asp-validation-for="AgeLimit" class="text-danger"></span>
+        </div>
+
+        <!-- On Sale Checkbox -->
+        <div class="my-2">
+            <label for="IsOnSale">On Sale</label>
+            <input type="checkbox" class="form-check-input" asp-for="IsOnSale" id="IsOnSale" />
+            <span asp-validation-for="IsOnSale" class="text-danger"></span>
+        </div>
+
+
+        <div class="my-2">
+            <label for="DiscountPrice">DiscountPrice*</label>
+            <input type="number" class="form-control" asp-for="DiscountPrice" id="DiscountPrice" required />
+            <span asp-validation-for="DiscountPrice" class="text-danger"></span>
+        </div>
+        <!-- Discount End Date Input -->
+        <div class="my-2">
+            <label for="DiscountEndDate">Discount End Date</label>
+            <input type="date" class="form-control" asp-for="DiscountEndDate" id="DiscountEndDate" />
+            <span asp-validation-for="DiscountEndDate" class="text-danger"></span>
+        </div>
+
+        <!-- Description Input -->
+        <div class="my-2">
+            <label for="Description">Description*</label>
+            <textarea class="form-control" asp-for="Description" id="Description" rows="4" required></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="my-2">
+            <label for="ImageFile">Imaget</label>
+            @if (!string.IsNullOrEmpty(Model.Imaget))
+            {
+                <img src="/images/@Model.Imaget" style="width:100px;height:80px" />
+            }
+            <input type="file" class="form-control" asp-for="ImageFile" id="ImageFile" />
+        </div>
+
+        <!-- File Inputs for ePub, F2B, Mobi, and PDF -->
+        <div class="my-2">
+            <label for="EpubFile">ePub</label>
+            <input type="file" class="form-control" asp-for="EpubFile" id="EpubFile" accept=".epub" />
+        </div>
+
+        <div class="my-2">
+            <label for="F2bFile">FB2</label>
+            <input type="file" class="form-control" asp-for="F2bFile" id="F2bFile" accept=".fb2" />
+        </div>
+
+        <div class="my-2">
+            <label for="MobiFile">Mobi</label>
+            <input type="file" class="form-control" asp-for="MobiFile" id="MobiFile" accept=".mobi" />
+        </div>
+
+        <div class="my-2">
+            <label for="PdfFile">PDF</label>
+            <input type="file" class="form-control" asp-for="PdfFile" id="PdfFile" accept=".pdf" />
+        </div>
+
+        <!-- Submit Button -->
+        <div class="my-2">
+            <button type="submit" class="btn btn-info">Update</button>
+        </div>
+
+        <!-- File Formats Checkboxes -->
+
+    </form>
+</div>

@@ -1,0 +1,62 @@
+<<<<<<< HEAD
+﻿@model IEnumerable<BookDTO>
+@{
+    Layout = "_AdminLayout";
+}
+
+<h2>Books</h2>
+
+<form asp-action="Index" method="get" class="my-2 d-flex gap-2">
+    <input type="text" name="sTerm" class="form-control w-25" placeholder="Search by book" />
+    <button type="submit" class="btn btn-primary">Find</button>
+    <a asp-action="Index" asp-controller="Book" class="btn btn-primary">Clear</a>
+</form>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Book</th>
+        <th>Actions</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.BookName</td>
+            <td>
+                <a asp-action="Edit" asp-controller="Book" asp-route-id="@item.Id" class="btn btn-info">Edit</a> <!-- Use Id here -->
+                <a asp-action="Delete" asp-controller="Book" asp-route-id="@item.Id" class="btn btn-danger">Delete</a> <!-- Use Id here -->
+            </td>
+        </tr>
+    }
+</table>
+=======
+﻿@model IEnumerable<StockDisplayModel>
+@{
+    
+}
+<h2>Stocks</h2>
+
+<form asp-action="Index" method="get" class="my-2 d-flex gap-2">
+    <input type="text" name="sTerm" class="form-control w-25" placeholder="Search by book" />
+    <button type="submit" class="btn btn-primary">Find</button>
+    <a asp-action="Index" asp-controller="Stock" class="btn btn-primary">Clear</a>
+</form>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Book</th>
+        <th>Stock</th>
+        <th>Actions</th>
+
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.BookName</td>
+            <td>@item.Quantity</td>
+            <td>
+                <a asp-action="ManangeStock" asp-controller="Stock" asp-route-bookId="@item.BookId" class="btn btn-info"> Update Stock</a>
+            </td>
+        </tr>
+    }
+</table>
+>>>>>>> 2dcde5309f1b1ae9f6603ccaf0597ba3cc87b5cc

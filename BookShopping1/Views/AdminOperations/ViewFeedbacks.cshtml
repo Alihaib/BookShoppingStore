@@ -1,0 +1,30 @@
+﻿@model IEnumerable<BookShopping1.Models.FeedBack>
+
+@{
+    Layout = "_AdminLayout";
+
+}
+
+<h2>Feedbacks</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Rating</th>
+            <th>Comment</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var feedback in Model)
+        {
+            <tr>
+                <td>@feedback.UserName</td>
+                <td>@feedback.Rating</td>
+                <td>@feedback.Comment</td>
+                <td>@feedback.Date.ToString("MM/dd/yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>

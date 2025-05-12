@@ -1,0 +1,81 @@
+<<<<<<< HEAD
+﻿@model BookDisplayModel
+@{
+    Layout = "_AdminLayout";
+}
+
+<div style="width:50%">
+    <h2> Manage Book </h2>
+    <a asp-action="Index" asp-controller="Book" class="btn btn-primary">Back</a>
+    <form asp-action="ManageBook">
+        <input type="hidden" asp-for="Books.First().Id" /> <!-- Using first book's Id if Books is a list -->
+        <!-- Book Name -->
+        <div class="my-2">
+            <label>Book Name</label>
+            <input type="text" class="form-control" asp-for="Books.First().BookName" />
+            <span asp-validation-for="Books.First().BookName" class="text-danger"></span>
+        </div>
+
+        <!-- Author Name -->
+        <div class="my-2">
+            <label>Author</label>
+            <input type="text" class="form-control" asp-for="Books.First().AuthorName" />
+            <span asp-validation-for="Books.First().AuthorName" class="text-danger"></span>
+        </div>
+
+        <!-- Publisher -->
+        <div class="my-2">
+            <label>Publisher</label>
+            <input type="text" class="form-control" asp-for="Books.First().Publisher" />
+            <span asp-validation-for="Books.First().Publisher" class="text-danger"></span>
+        </div>
+
+        <!-- Price -->
+        <div class="my-2">
+            <label>Price</label>
+            <input type="number" class="form-control" asp-for="Books.First().Price" />
+            <span asp-validation-for="Books.First().Price" class="text-danger"></span>
+        </div>
+
+        <!-- Genre -->
+        <div class="my-2">
+            <label>Genre</label>
+            <select class="form-control" asp-for="Books.First().GenreId">
+                <option value="">Select Genre</option>
+                @foreach (var genre in ViewBag.Genres as List<Genre>)
+                {
+                    <option value="@genre.Id">@genre.GenreName</option>
+                }
+            </select>
+            <span asp-validation-for="Books.First().GenreId" class="text-danger"></span>
+        </div>
+
+        <div class="my-2">
+            <button type="submit" class="btn btn-info">Update</button>
+        </div>
+    </form>
+</div>
+=======
+﻿@model StockDTO
+@{
+    
+}
+
+<div style="width:50%">
+    <h2> Manage Stock </h2>
+    <a asp-action="Index" asp-controller="Stock" class="btn btn-primary">Back</a>
+    <form asp-action="ManangeStock">
+        <input type="hidden" asp-for="BookId" />
+
+        <div class="my-2">
+            <label>Quantity</label>
+            <input type="number" class="form-control" asp-for="Quantity" />
+            <span asp-validation-for="Quantity" class="text-danger"></span>
+        </div>
+
+        <div class="my-2">
+            <button type="submit" class="btn btn-info">Update</button>
+        </div>
+    </form>
+</div>
+>>>>>>> 2dcde5309f1b1ae9f6603ccaf0597ba3cc87b5cc

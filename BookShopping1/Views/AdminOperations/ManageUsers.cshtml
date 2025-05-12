@@ -1,0 +1,33 @@
+﻿@model List<BookShopping1.Models.CustomIdentityUser> 
+
+<h3>All Users</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>id of the user </th>
+            <th>cardnumber of the user </th>
+            <th>CVC of the criedt card </th> 
+            <th>cardholder name of the user </th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.Id</td>
+                    <td>@user.CardNumber</td> 
+                    <td>@user.CVV</td>
+                    <td>@user.CardholderName</td> 
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3" class="text-center">No users found</td>
+            </tr>
+        }
+    </tbody>
+</table>

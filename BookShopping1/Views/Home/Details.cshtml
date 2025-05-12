@@ -1,0 +1,159 @@
+﻿@model Book
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<!-- Page Title -->
+<div class="text-center my-5">
+    <h1 class="text-primary fw-bold display-4">@Model.BookName</h1>
+</div>
+
+<div class="container bg-white p-5 shadow rounded">
+
+    <!-- Book Details Section -->
+    <div class="row">
+        <!-- Book Image -->
+        <div class="col-md-6 mb-4">
+            @if (string.IsNullOrEmpty(Model.Imaget))
+            {
+                <img src="/imaget/default.jpg" class="img-fluid rounded shadow" alt="@Model.BookName" />
+            }
+            else
+            {
+                <img src="/imaget/@Model.Imaget" class="img-fluid rounded shadow" alt="@Model.BookName" />
+            }
+        </div>
+
+        <!-- Book Information -->
+        <div class="col-md-6">
+            <h2 class="text-dark fw-bold">@Model.BookName</h2>
+            <p class="mb-2"><strong>Author:</strong> <span class="text-muted">@Model.AuthorName</span></p>
+            <p class="mb-2"><strong>Publisher:</strong> <span class="text-muted">@Model.Publisher</span></p>
+            <p class="mb-2">
+                <strong>Price:</strong>
+                @if (Model.DiscountEndDate.HasValue && Model.DiscountEndDate.Value > DateTime.Now)
+                {
+                    <span class="text-muted text-decoration-line-through">@Model.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</span>
+                    <span class="text-success fw-bold">$@Model.DiscountPrice</span>
+                }
+                else
+                {
+                    <span class="text-primary fw-bold">@Model.Price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</span>
+                }
+            </p>
+            <p class="mb-2"><strong>Borrow Price:</strong> <span class="text-info">@Model.BorrowPrice.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))</span></p>
+            <p class="mb-2"><strong>Genre:</strong> <span class="badge bg-secondary">@Model.Genre.GenreName</span></p>
+            <p class="mt-3"><strong>Description:</strong></p>
+            <p class="text-muted">@Model.Description</p>
+
+            <!-- Add to Cart Button -->
+            <button type="button" onclick="addToCart(@Model.Id)" class="btn btn-success btn-lg mt-3 shadow-lg px-5">
+                <i class="bi bi-cart-plus"></i> Add to Cart
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f9fafb;
+        color: #333;
+    }
+
+    h1 {
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.4em 0.6em;
+        border-radius: 5px;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border: none;
+        font-size: 1.2rem;
+        padding: 12px 30px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+    .btn {
+        transition: all 0.3s ease;
+    }
+
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .shadow {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-muted {
+        color: #6c757d;
+    }
+
+    .text-primary {
+        color: #007bff !important;
+    }
+
+    .text-success {
+        color: #28a745 !important;
+        font-weight: bold;
+    }
+
+    .text-info {
+        color: #17a2b8 !important;
+    }
+
+    .rounded {
+        border-radius: 10px;
+    }
+</style>
+
+<!-- JavaScript for Add to Cart -->
+@section Scripts {
+    <script>
+        async function addToCart(bookId) {
+            console.log("Add to cart clicked for bookId:", bookId);
+
+            var usernameEl = document.getElementById("username");
+            if (!usernameEl) {
+                window.location.href = "/Identity/Account/Login";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/Cart/AddItem`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookId, qty: 1 })
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    // Update cart count in UI if needed
+                    console.log("Item added to cart. Cart count:", result);
+                }
+            } catch (error) {
+                console.error("Error adding to cart:", error);
+            }
+        }
+    </script>
+}

@@ -1,0 +1,46 @@
+﻿@{
+    ViewData["Title"] = "Waiting List";
+    Layout = "_AdminLayout";
+}
+
+<h2>Waiting List Statistics</h2>
+
+@if (ViewBag.WaitingListStats != null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Book Title</th>
+                <th>Waiting Count</th>
+                <th>Users Waiting</th>
+                <th>Due Date</th> <!-- Add Due Date column -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.WaitingListStats)
+            {
+                <tr>
+                    <td>@item.BookTitle</td>
+                    <td>@item.WaitingCount</td>
+                    <td>
+                        @foreach (var user in item.UsersWaiting)
+                        {
+                            <p>@user.UserName</p> <!-- Display each user who is waiting for the book -->
+                        }
+                    </td>
+                    <td>
+                        @foreach (var user in item.UsersWaiting)
+                        {
+                            <p>@user.DueDate?.ToString("MM/dd/yyyy")</p> <!-- Display the due date for each user -->
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No books are currently on the waiting list.</p>
+}
+

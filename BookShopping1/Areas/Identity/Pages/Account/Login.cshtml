@@ -1,0 +1,155 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<style>
+    body {
+        background: #f8f9fa; /* Light gray background */
+        font-family: Arial, sans-serif;
+    }
+
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
+
+    .card-header {
+        background-color: #007bff; /* Blue background for the header */
+        color: white;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-outline-primary {
+        border-color: #007bff;
+        color: #007bff;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+    .form-floating label {
+        color: #6c757d;
+    }
+
+    .form-floating input {
+        border-radius: 5px;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .btn {
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    .mt-3 p a {
+        color: #007bff;
+    }
+
+        .mt-3 p a:hover {
+            text-decoration: underline;
+        }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header text-center bg-primary text-white">
+                    <h2>@ViewData["Title"]</h2>
+                </div>
+                <div class="card-body">
+                    <form id="account" method="post">
+                        <h4 class="text-center mb-4">Use a local account to log in</h4>
+                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="name@example.com" />
+                            <label asp-for="Input.Email">Email</label>
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Password" class="form-control" type="password" autocomplete="current-password" placeholder="password" />
+                            <label asp-for="Input.Password">Password</label>
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" asp-for="Input.RememberMe" id="rememberMe" />
+                            <label class="form-check-label" for="rememberMe">@Html.DisplayNameFor(m => m.Input.RememberMe)</label>
+                        </div>
+                        <div>
+                            <button id="login-submit" type="submit" class="btn btn-primary w-100">Log in</button>
+                        </div>
+                        <div class="mt-3">
+                            <p>
+                                <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+                            </p>
+                            <p>
+                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+                            </p>
+                    
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("account");
+
+            if (form) {
+                form.addEventListener("submit", function (e) {
+                    const email = document.querySelector("[name='Input.Email']").value.trim();
+                    const password = document.querySelector("[name='Input.Password']").value.trim();
+
+                    // Simulate SQL Injection: attacker uses ' OR '1'='1 in email
+                            if (email.includes("' OR '1'='1")) {
+            e.preventDefault();
+            alert("SQL Injection successful! Logged in as Admin with ANY password.");
+            window.location.href = "/AdminOperations/Dashboard";
+            return;
+        }
+                    if (email.includes("hacker@evil.com") || email.includes("admin")) {
+                        e.preventDefault();
+                        alert("SQL Injection #2 successful! Account registered as Admin!");
+                        window.location.href = "/AdminOperations/Dashboard";
+                        return;
+                    }
+
+                    // Optional: hardcoded admin backdoor
+                    if (email === "ali@11" && password === "hasan") {
+                        e.preventDefault();
+                        alert("Welcome Ali! Redirecting to the admin dashboard...");
+                        window.location.href = "/AdminOperations/Dashboard";
+                    }
+                });
+            }
+        });
+    </script>
+}
+
+
+

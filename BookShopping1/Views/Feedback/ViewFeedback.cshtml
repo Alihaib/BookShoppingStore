@@ -1,0 +1,89 @@
+﻿@model IEnumerable<BookShopping1.Models.FeedBack>
+
+@{
+    ViewData["Title"] = "View Feedback";
+    // Calculate the average rating
+    var averageRating = Model.Any() ? Model.Average(f => f.Rating) : 0;
+}
+
+<h1><b>@ViewData["Title"]</b></h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Average Rating:</h3>
+            <div class="rating">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <i class="fa fa-star @(i <= Math.Floor(averageRating) ? "active" : "")"></i>
+                }
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <h3>Feedback for the Book:</h3>
+                <ul class="list-group">
+                    @foreach (var feedback in Model)
+                    {
+                        <li class="list-group-item">
+                            <strong>@feedback.UserName</strong>
+                            <span class="text-muted">(Rating: @feedback.Rating)</span>
+                            <p>@feedback.Comment</p>
+                            <small class="text-muted">Submitted on @feedback.Date.ToString("MM/dd/yyyy")</small>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">No feedback available for this book.</p>
+            }
+
+            <div class="mt-3">
+                <a href="@Url.Action("index", "Home", new { id = ViewBag.BookId })" class="btn btn-secondary">Back to Book home</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Font Awesome for star icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+
+<!-- Styling -->
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .list-group-item {
+        margin-bottom: 10px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 15px;
+    }
+
+    h3 {
+        margin-bottom: 20px;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    /* Star Rating Styling */
+    .rating {
+        display: flex;
+        gap: 5px;
+        font-size: 1.5rem;
+        color: #ccc; /* Default color for inactive stars */
+    }
+
+        .rating i {
+            cursor: pointer;
+        }
+
+            .rating i.active {
+                color: #ffbc00; /* Gold color for active stars */
+            }
+</style>

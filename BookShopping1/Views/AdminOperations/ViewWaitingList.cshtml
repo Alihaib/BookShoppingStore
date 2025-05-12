@@ -1,0 +1,25 @@
+﻿@model IEnumerable<string>
+@{
+    ViewData["Title"] = "Waiting List";
+    Layout = "_AdminLayout";
+}
+
+<div class="container my-5">
+    <h2>Waiting List</h2>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>User</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

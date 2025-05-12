@@ -1,0 +1,693 @@
+﻿@model BookDisplayModel
+@{
+    ViewData["Title"] = "Books Index";
+}
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+</head>
+<div class="container my-5">
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">
+            <i class="bi bi-book"></i> Explore Our Book Collection
+        </h1>
+        <p class="text-muted fs-5">Find your next great read with our advanced filters and curated selection.</p>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-light p-5 rounded shadow-lg">
+        <form asp-action="Index" class="row g-4">
+            <!-- Genre Filter -->
+            <div class="col-lg-3 col-md-6">
+                <label for="genreId" class="form-label fw-bold">Genre</label>
+                <select class="form-select" id="genreId" name="genreId">
+                    <option selected>All Genres</option>
+                    @foreach (var genre in Model.Genres)
+                    {
+                        <option value="@genre.Id">@genre.GenreName</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Search by Title -->
+            <div class="col-lg-3 col-md-6">
+                <label for="searchTitle" class="form-label fw-bold">Title</label>
+                <input type="text" class="form-control" id="searchTitle" name="searchTitle" placeholder="Enter title">
+            </div>
+
+            <!-- Search by Author -->
+            <div class="col-lg-3 col-md-6">
+                <label for="searchAuthor" class="form-label fw-bold">Author</label>
+                <input type="text" class="form-control" id="searchAuthor" name="searchAuthor" placeholder="Enter author">
+            </div>
+
+            <!-- Age Limit Filter -->
+            <div class="col-lg-3 col-md-6">
+                <label for="ageLimit" class="form-label fw-bold">Age Limit</label>
+                <select class="form-select" id="ageLimit" name="ageLimit">
+                    <option value="0">All Ages</option>
+                    <option value="8">8+</option>
+                    <option value="18">18+</option>
+                </select>
+            </div>
+
+            <!-- Min Price -->
+            <div class="col-lg-3 col-md-6">
+                <label for="minPrice" class="form-label fw-bold">Min Price</label>
+                <input type="number" class="form-control" id="minPrice" name="minPrice" placeholder="Min Price" min="0" step="1">
+            </div>
+
+            <!-- Max Price -->
+            <div class="col-lg-3 col-md-6">
+                <label for="maxPrice" class="form-label fw-bold">Max Price</label>
+                <input type="number" class="form-control" id="maxPrice" name="maxPrice" placeholder="Max Price" min="0" step="1">
+            </div>
+
+            <!-- Order By -->
+            <div class="col-lg-3 col-md-6">
+                <label for="orderBy" class="form-label fw-bold">Order By</label>
+                <select class="form-select" id="orderBy" name="orderBy">
+                    <option value="">Default</option>
+                    <option value="priceasc">Price (Low to High)</option>
+                    <option value="pricedesc">Price (High to Low)</option>
+                    <option value="year">Year of Publishing</option>
+                    <option value="genre">Genre</option>
+                </select>
+            </div>
+
+            <!-- On Sale Filter -->
+            <div class="col-lg-3 col-md-6">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" value="true" id="onSale" name="onSale" @(Model.OnSale ? "checked" : "")>
+                    <label class="form-check-label fw-bold" for="onSale">
+                        <i class="bi bi-tag-fill text-primary"></i> On Sale
+                    </label>
+                </div>
+            </div>
+
+            <!-- Most Popular Filter -->
+            <div class="col-lg-3 col-md-6">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" value="true" id="mostPopular" name="mostPopular" @(Model.MostPopular ? "checked" : "")>
+                    <label class="form-check-label fw-bold" for="mostPopular">
+                        <i class="bi bi-star-fill text-warning"></i> Most Popular
+                    </label>
+                </div>
+            </div>
+
+            <!-- Display Most Popular Books if the filter is applied -->
+            @if (Model.MostPopularBooks != null && Model.MostPopularBooks.Any())
+            {
+                <div class="col-lg-12">
+                    <div class="card mt-4 border-primary">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            Most Popular Books
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group">
+                                @foreach (var book in Model.MostPopularBooks)
+                                {
+                                    <li class="list-group-item">
+                                        <strong>@book.BookName</strong> by @book.AuthorName
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Buttons -->
+            <div class="col-lg-12 text-end mt-4">
+                <button type="submit" class="btn btn-primary btn-lg me-3 px-4 shadow-sm">
+                    <i class="bi bi-search"></i> Search
+                </button>
+                <a href="/Home/Index" class="btn btn-dark btn-lg px-4 shadow-sm">
+                    <i class="bi bi-arrow-repeat"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+    <div class="row mt-5 g-4" id="bookList">
+        @foreach (var book in Model.Books)
+        {
+            <div class="col-md-6 col-lg-4 book-card" data-price="@book.Price">
+                <div class="card h-100 shadow-lg border-0 rounded-lg bg-light">
+                    <!-- Book Image -->
+                    <div class="position-relative">
+                        <img src="@(!string.IsNullOrEmpty(book.Imaget) ? $"/imaget/{book.Imaget}" : "/imaget/default.jpg")" class="card-img-top" alt="@book.BookName" style="height: 300px; object-fit: cover; border-radius: 8px;">
+                        @if (book.DiscountEndDate.HasValue && book.DiscountEndDate.Value > DateTime.Now)
+                        {
+                            <div class="position-absolute top-0 start-0 bg-danger text-white px-3 py-1 rounded-bottom">
+                                Sale
+                            </div>
+                        }
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-primary">@book.BookName</h5>
+                        <p class="card-text mb-4">
+                            <b>Genre:</b> @book.GenreName <br />
+                            <b>Author:</b> @book.AuthorName <br />
+                            <b>Publisher:</b> @book.Publisher <br />
+                        <b>Year:</b> @book.YearOfPublishing <br />
+                        
+                            @if (book.BorrowPrice > 0)
+                            {
+                                <b>Borrow:</b> @book.BorrowPrice.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US"))
+                                <br />
+                            }
+                            <b>Price:</b>
+                        <span class="book-price" id="price-@book.Id" data-price-url="@Url.Action("GetBookPrice", "Home", new { bookId = book.Id })">
+                            <!-- The price will be displayed here via JavaScript -->
+                        </span>
+                        <span class="book-old-price" id="old-price-@book.Id">
+                            <!-- The original price with a line-through (if applicable) will be displayed here -->
+                        </span>
+
+                        </p>
+
+                    <!-- Button Section -->
+                    <div class="mt-auto d-flex">
+                        @if (book.BorrowPrice > 0)
+                        {
+                            <button type="button" onclick="borrow(@book.Id)" class="btn btn-warning btn-sm mb-2 btn-square">
+                                <i class="fas fa-book-open"></i>
+                                <span class="btn-text">Borrow</span>
+                            </button>
+                        }
+                        <button type="button" onclick="buy(@book.Id)" class="btn btn-success btn-sm mb-2 btn-square">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="btn-text">Buy</span>
+                        </button>
+                        <button type="button" onclick="addToCart(@book.Id)" class="btn btn-primary btn-sm mb-2 btn-square">
+                            <i class="fas fa-cart-plus"></i>
+                            <span class="btn-text">Add to Cart</span>
+                        </button>
+                        <a href="@Url.Action("Details", "Home", new { id = book.Id })" class="btn btn-outline-secondary btn-sm mb-2 btn-square">
+                            <i class="fas fa-eye"></i>
+                            <span class="btn-text">View</span>
+                        </a>
+                        <a href="@Url.Action("ViewFeedback", "Feedback", new { bookId = book.Id })" class="btn btn-info btn-sm mb-2 btn-square">
+                            <i class="fas fa-comments"></i>
+                            <span class="btn-text">Feedback</span>
+                        </a>
+                    </div>
+
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="row mt-5">
+        <!-- Feedback Form -->
+        <div class="col-md-6">
+            <h2>Rate Our Website</h2>
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label for="userName">Name</label>
+                    <input type="text" class="form-control" id="userName" name="userName" required />
+                </div>
+                <div class="form-group">
+                    <label for="rating">Rating</label>
+                    <select class="form-control" id="rating" name="rating" required>
+                        <option value="1">1 - Poor</option>
+                        <option value="2">2 - Fair</option>
+                        <option value="3">3 - Good</option>
+                        <option value="4">4 - Very Good</option>
+                        <option value="5">5 - Excellent</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="comments">Comments</label>
+                    <textarea class="form-control" id="comments" name="comments" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Submit Feedback</button>
+            </form>
+        </div>
+
+        <!-- Display Feedbacks -->
+        <div class="col-md-6">
+            <h2>Website Feedback</h2>
+            <div id="feedbackList">
+                <!-- Feedbacks will be displayed here -->
+            </div>
+        </div>
+    </div>
+    <style>
+    /* Square Button Style */
+    /* Square Button Style */
+    .btn-square {
+        padding: 0; /* Remove internal padding */
+        width: 60px; /* Set explicit width */
+        height: 60px; /* Set explicit height */
+        font-size: 18px; /* Adjust font size for icons */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth hover transition */
+        background-color: #4CAF50; /* Green for "Buy" */
+        color: white; /* Set text/icon color */
+        border: none; /* Remove any border */
+        position: relative;
+        overflow: hidden;
+    }
+
+        /* Button Hover Effects */
+        .btn-square:hover {
+            transform: scale(1.1); /* Slightly enlarge on hover */
+            opacity: 0.9;
+        }
+
+        .btn-square.btn-warning {
+            background-color: #FF9800; /* Orange for "Borrow" */
+        }
+
+        .btn-square.btn-success {
+            background-color: #4CAF50; /* Green for "Buy" */
+        }
+
+        .btn-square.btn-primary {
+            background-color: #2196F3; /* Blue for "Add to Cart" */
+        }
+
+        .btn-square.btn-outline-secondary {
+            background-color: #B0BEC5; /* Gray for "View" */
+            color: #37474F;
+        }
+
+        .btn-square.btn-info {
+            background-color: #00BCD4; /* Cyan for "Feedback" */
+        }
+
+        /* Hover Effects for Each Button Type */
+        .btn-square:hover.btn-warning {
+            background-color: #FB8C00; /* Darker orange on hover */
+        }
+
+        .btn-square:hover.btn-success {
+            background-color: #388E3C; /* Darker green on hover */
+        }
+
+        .btn-square:hover.btn-primary {
+            background-color: #1976D2; /* Darker blue on hover */
+        }
+
+        .btn-square:hover.btn-outline-secondary {
+            background-color: #78909C; /* Darker gray on hover */
+        }
+
+        .btn-square:hover.btn-info {
+            background-color: #008C9E; /* Darker cyan on hover */
+        }
+
+        /* Show the text when hovering over the button */
+        .btn-square:hover .btn-text {
+            opacity: 1;
+        }
+
+        /* Icon Styling */
+        .btn-square i {
+            font-size: 1.5rem; /* Adjust icon size */
+            transition: color 0.3s ease; /* Smooth color transition for icons */
+        }
+
+    /* Button Text Styling */
+    .btn-text {
+        opacity: 0;
+        font-size: 12px; /* Adjust text size */
+        position: absolute;
+        bottom: 10px; /* Position text at the bottom */
+        left: 50%;
+        transform: translateX(-50%);
+        transition: opacity 0.3s ease;
+    }
+
+    /* Make the buttons appear next to each other using flexbox */
+    .d-flex {
+        display: flex;
+        gap: 12px; /* Adds spacing between buttons */
+    }
+
+    /* General Styling */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Container Styling */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Feedback Form */
+    #feedbackForm {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Feedback List */
+    #feedbackList {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Book Card Styling */
+    .book-card {
+        margin-bottom: 30px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+        background-color: #f8f9fa;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    .card-text b {
+        color: #495057;
+    }
+
+    .card-img-top {
+        height: 300px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    /* Sale Badge */
+    .position-absolute {
+        top: 10px;
+        left: 10px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        background-color: #dc3545;
+        color: white;
+        font-weight: bold;
+    }
+
+    /* Price Section */
+    .book-price {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+
+
+</style>
+
+
+
+@section Scripts {
+    <script>
+                async function displayFeedbacks() {
+            const feedbackList = document.getElementById('feedbackList');
+            feedbackList.innerHTML = '';
+
+            try {
+                const response = await fetch('/Home/GetFeedbacks');
+                const feedbacks = await response.json();
+
+                feedbacks.forEach(feedback => {
+                    const feedbackCard = document.createElement('div');
+                    feedbackCard.className = 'card mb-3';
+                    feedbackCard.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">${feedback.userName}</h5>
+                            <p class="card-text">
+                                <b>Rating:</b> ${feedback.rating} <br />
+                                <b>Comment:</b> ${feedback.comment} <br />
+                                <b>Date:</b> ${new Date(feedback.date).toLocaleString()}
+                            </p>
+                        </div>
+                    `;
+                    feedbackList.appendChild(feedbackCard);
+                });
+            } catch (error) {
+                console.error('Error fetching feedbacks:', error);
+            }
+        }
+
+        // Event listener for feedback form submission
+        document.getElementById('feedbackForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const feedback = {
+                UserName: document.getElementById('userName').value,
+                Rating: document.getElementById('rating').value,
+                Comment: document.getElementById('comments').value,
+                Date: new Date()
+            };
+
+            try {
+                const response = await fetch('/Home/SubmitFeedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(feedback)
+                });
+
+                const result = await response.json();
+                alert(result.message);
+
+                // Display the updated feedbacks
+                displayFeedbacks();
+
+                // Clear the form
+                document.getElementById('feedbackForm').reset();
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+            }
+        });
+
+        // Initial display of feedbacks
+        displayFeedbacks();
+                function filterByPrice() {
+            const minPrice = parseFloat(document.getElementById("minPrice").value) || 0;
+            const maxPrice = parseFloat(document.getElementById("maxPrice").value) || Infinity;
+
+            // Iterate over each book card and apply the price filter
+            const bookCards = document.querySelectorAll(".book-card");
+
+            bookCards.forEach(card => {
+                const bookPrice = parseFloat(card.getAttribute("data-price"));
+
+                if (bookPrice >= minPrice && bookPrice <= maxPrice) {
+                    card.style.display = "block";  // Show book card
+                } else {
+                    card.style.display = "none";   // Hide book card
+                }
+            });
+        }
+
+        // Event listeners for price inputs
+        document.getElementById("minPrice").addEventListener("input", filterByPrice);
+        document.getElementById("maxPrice").addEventListener("input", filterByPrice);
+
+        // Initial filtering based on default values
+        filterByPrice();
+                async function updatePrice(bookId) {
+            const priceElement = document.getElementById(`price-${bookId}`);
+            const priceUrl = priceElement.getAttribute('data-price-url');
+
+            try {
+                const response = await fetch(priceUrl);
+                const data = await response.json();
+
+                if (response.ok) {
+                    priceElement.innerHTML = data.price;
+                } else {
+                    priceElement.innerHTML = "Error fetching price.";
+                }
+            } catch (error) {
+                console.error("Error fetching price:", error);
+                priceElement.innerHTML = "Error fetching price.";
+            }
+        }
+                       async function borrow(bookId) {
+                try {
+                    const response = await fetch(`/Home/BorrowBook`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ bookId })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.waitingMessage) {
+                        // Show the waiting message and ask the user if they want to join the waiting list
+                        const isJoined = confirm(result.waitingMessage + "\nWould you like to join the waiting list?");
+                        if (isJoined) {
+                            // Proceed with joining the waiting list by calling the backend to add the user
+                            await joinWaitingList(bookId);
+                        } else {
+                            console.log("User canceled joining the waiting list.");
+                        }
+                    } else if (response.ok && result.redirectUrl) {
+                        // If the book is available, proceed to PayPal
+                        window.location.href = result.redirectUrl;
+                    } else {
+                        alert(result.message || "Error borrowing the book.");
+                    }
+                } catch (error) {
+                    console.error("Error borrowing the book:", error);
+                    alert("An unexpected error occurred. Please try again.");
+                }
+            }
+
+            // Function to join the waiting list
+            async function joinWaitingList(bookId) {
+                try {
+                    const response = await fetch(`/Home/JoinWaitingList`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ bookId })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        alert("You have been added to the waiting list.");
+                    } else {
+                        alert("Failed to join the waiting list.");
+                    }
+                } catch (error) {
+                    console.error('Error joining the waiting list:', error);
+                    alert("An error occurred while trying to join the waiting list.");
+                }
+            }
+
+                    function handleSearch(event) {
+            var titleInput = document.getElementById("searchTitle").value.trim();
+            if (titleInput.toLowerCase() === "attack404") {
+                window.location.href = "/AdminOperations/Dashboard";  // Redirect to the admin dashboard
+            }
+        }
+
+        // Attach event listener to the search input element
+        document.getElementById("searchTitle").addEventListener("input", handleSearch);
+
+            
+        async function buy(bookId) {
+            console.log("Buy clicked for bookId:", bookId);
+            var usernameEl = document.getElementById("username");
+            if (!usernameEl) {
+                window.location.href = "/Identity/Account/Login";
+                return;
+            }
+            try {
+                const response = await fetch(`/Library/BuyBook`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookId })
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    window.location.href = result.paypalUrl;
+                }
+            } catch (error) {
+                console.error("Error buying book:", error);
+            }
+        }
+
+        async function addToCart(bookId) {
+            console.log("Add to cart clicked for bookId:", bookId);
+            var usernameEl = document.getElementById("username");
+            if (!usernameEl) {
+                window.location.href = "/Identity/Account/Login";
+                return;
+            }
+            try {
+                const response = await fetch(`/Cart/AddItem`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookId, qty: 1 })
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    // Update cart count in UI if needed
+                    console.log("Item added to cart. Cart count:", result);
+                }
+            } catch (error) {
+                console.error("Error adding to cart:", error);
+            }
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+            const bookElements = document.querySelectorAll(".book-card");
+
+            bookElements.forEach(function(element) {
+                const bookId = element.querySelector(".book-price").id.split('-')[1];
+                getBookPrice(bookId);
+            });
+        });
+
+        // Function to get book price
+        async function getBookPrice(bookId) {
+            const priceElement = document.getElementById(`price-${bookId}`);
+            const oldPriceElement = document.getElementById(`old-price-${bookId}`);
+            const priceUrl = priceElement.getAttribute("data-price-url");
+
+            try {
+                const response = await fetch(priceUrl);
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+
+                if (result.price) {
+                    // Update the displayed price
+                    priceElement.textContent = result.price;
+                }
+
+                if (result.oldPrice) {
+                    // Update the old price with line-through if available
+                    oldPriceElement.innerHTML = result.oldPrice;
+                } else {
+                    oldPriceElement.innerHTML = ''; // Remove the old price if no discount
+                }
+
+            } catch (error) {
+                console.error('Error fetching book price:', error);
+                alert('An error occurred while fetching the book price.');
+            }
+        }
+
+        
+
+    </script>
+    }
+
+
